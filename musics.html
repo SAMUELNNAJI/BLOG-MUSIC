@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BEATVAULT — Where Sound Lives</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #e5001a;
+    --red-dark: #a30012;
+    --red-glow: rgba(229,0,26,0.35);
+    --black: #0a0a0a;
+    --dark: #111111;
+    --surface: #181818;
+    --surface2: #222222;
+    --white: #f5f5f0;
+    --muted: #888880;
+    --accent: #ff6b35;
+    --gold: #c9a84c;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    background: var(--red);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+    mix-blend-mode: difference;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--red);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99998;
+    transform: translate(-50%,-50%);
+    transition: transform 0.18s ease, width 0.2s, height 0.2s, opacity 0.2s;
+    opacity: 0.6;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--red); border-radius: 2px; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 1000;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 3rem;
+    height: 72px;
+    background: rgba(10,10,10,0.85);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(229,0,26,0.12);
+  }
+
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    letter-spacing: 0.12em;
+    color: var(--white);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 0.3rem;
+  }
+  .nav-logo span { color: var(--red); }
+
+  .nav-links {
+    display: flex; gap: 2.5rem; list-style: none;
+  }
+  .nav-links a {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute; bottom: -4px; left: 0; right: 0; height: 1px;
+    background: var(--red);
+    transform: scaleX(0); transform-origin: right;
+    transition: transform 0.3s ease;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
+
+  .nav-cta {
+    background: var(--red);
+    color: var(--white) !important;
+    padding: 0.5rem 1.2rem;
+    border-radius: 2px;
+    font-family: var(--font-mono) !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.1em;
+    transition: background 0.2s, box-shadow 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--red-dark) !important; box-shadow: 0 0 18px var(--red-glow) !important; }
+  .nav-cta::after { display: none !important; }
+
+  /* MOBILE NAV */
+  .hamburger {
+    display: none;
+    flex-direction: column; gap: 5px;
+    cursor: pointer; padding: 4px;
+  }
+  .hamburger span {
+    display: block; width: 26px; height: 2px;
+    background: var(--white);
+    transition: all 0.3s;
+  }
+  .mobile-menu {
+    display: none;
+    position: fixed; top: 72px; left: 0; right: 0; bottom: 0;
+    background: rgba(10,10,10,0.97);
+    backdrop-filter: blur(24px);
+    z-index: 999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+    text-align: center;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    font-family: var(--font-display);
+    font-size: 2.8rem;
+    letter-spacing: 0.08em;
+    color: var(--white);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .mobile-menu a:hover { color: var(--red); }
+  .mobile-menu .mob-cta {
+    background: var(--red);
+    padding: 0.8rem 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--white);
+    border-radius: 2px;
+    font-size: 1rem;
+  }
+
+  /* ── HERO ── */
+  #home {
+    position: relative;
+    min-height: 100vh;
+    display: flex; align-items: center;
+    overflow: hidden;
+    padding-top: 72px;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 70% at 70% 50%, rgba(229,0,26,0.22) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 50% at 20% 80%, rgba(229,0,26,0.1) 0%, transparent 60%),
+      linear-gradient(135deg, #0a0a0a 0%, #1a0305 50%, #0a0a0a 100%);
+    z-index: 0;
+  }
+
+  .hero-noise {
+    position: absolute; inset: 0; z-index: 1; opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 200px;
+  }
+
+  /* Animated waveform lines */
+  .hero-lines {
+    position: absolute; inset: 0; z-index: 1; overflow: hidden;
+  }
+  .hero-lines svg { width: 100%; height: 100%; opacity: 0.07; }
+
+  .hero-inner {
+    position: relative; z-index: 2;
+    max-width: 1200px; margin: 0 auto;
+    padding: 0 3rem;
+    display: grid; grid-template-columns: 1fr 1fr;
+    align-items: center; gap: 4rem;
+    width: 100%;
+  }
+
+  .hero-tag {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 1.2rem;
+    display: flex; align-items: center; gap: 0.8rem;
+  }
+  .hero-tag::before { content: ''; display: block; width: 32px; height: 1px; background: var(--red); }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(4.5rem, 9vw, 8.5rem);
+    line-height: 0.92;
+    letter-spacing: 0.04em;
+    color: var(--white);
+    margin-bottom: 1.5rem;
+  }
+  .hero-title .red { color: var(--red); text-shadow: 0 0 60px rgba(229,0,26,0.5); }
+  .hero-title .stroke {
+    -webkit-text-stroke: 1px var(--white);
+    color: transparent;
+  }
+
+  .hero-sub {
+    font-size: 1rem;
+    color: var(--muted);
+    max-width: 440px;
+    line-height: 1.75;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+  .btn-primary {
+    background: var(--red);
+    color: var(--white);
+    padding: 0.85rem 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 2px;
+    border: none; cursor: pointer;
+    transition: background 0.2s, box-shadow 0.3s, transform 0.2s;
+    display: inline-flex; align-items: center; gap: 0.6rem;
+  }
+  .btn-primary:hover {
+    background: var(--red-dark);
+    box-shadow: 0 0 28px var(--red-glow);
+    transform: translateY(-2px);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--white);
+    padding: 0.85rem 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 2px;
+    border: 1px solid rgba(255,255,255,0.18);
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, transform 0.2s;
+    display: inline-flex; align-items: center; gap: 0.6rem;
+  }
+  .btn-ghost:hover { border-color: var(--red); color: var(--red); transform: translateY(-2px); }
+
+  /* Hero visual */
+  .hero-visual {
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .vinyl-wrap {
+    position: relative; width: 360px; height: 360px;
+  }
+  .vinyl {
+    width: 360px; height: 360px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      #111 0deg 4deg, #1a1a1a 4deg 8deg,
+      #111 8deg 12deg, #1a1a1a 12deg 16deg,
+      #111 16deg 20deg, #1a1a1a 20deg 24deg,
+      #111 24deg 28deg, #1a1a1a 28deg 32deg,
+      #111 32deg 36deg, #1a1a1a 36deg 40deg,
+      #111 40deg 44deg, #1a1a1a 44deg 360deg
+    );
+    animation: spin 8s linear infinite;
+    box-shadow: 0 0 80px rgba(229,0,26,0.25), 0 0 180px rgba(229,0,26,0.1), inset 0 0 30px rgba(0,0,0,0.8);
+    position: relative;
+  }
+  .vinyl::after {
+    content: '';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--red) 0%, var(--red-dark) 40%, #1a0305 100%);
+    box-shadow: 0 0 20px var(--red-glow);
+  }
+  .vinyl-center-dot {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--white);
+    z-index: 2;
+  }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .eq-bars {
+    position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 4px; align-items: flex-end; height: 50px;
+  }
+  .eq-bar {
+    width: 5px; border-radius: 3px 3px 0 0;
+    background: var(--red);
+    animation: eq 0.6s ease-in-out infinite alternate;
+    opacity: 0.8;
+  }
+  .eq-bar:nth-child(1) { height: 20px; animation-delay: 0s; }
+  .eq-bar:nth-child(2) { height: 35px; animation-delay: 0.1s; }
+  .eq-bar:nth-child(3) { height: 25px; animation-delay: 0.2s; }
+  .eq-bar:nth-child(4) { height: 45px; animation-delay: 0.05s; }
+  .eq-bar:nth-child(5) { height: 30px; animation-delay: 0.15s; }
+  .eq-bar:nth-child(6) { height: 50px; animation-delay: 0.3s; }
+  .eq-bar:nth-child(7) { height: 22px; animation-delay: 0.08s; }
+  .eq-bar:nth-child(8) { height: 40px; animation-delay: 0.22s; }
+  .eq-bar:nth-child(9) { height: 15px; animation-delay: 0.35s; }
+  .eq-bar:nth-child(10) { height: 38px; animation-delay: 0.12s; }
+  @keyframes eq { to { height: 8px; opacity: 0.3; } }
+
+  /* STATS ROW */
+  .hero-stats {
+    display: flex; gap: 2.5rem; margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.07);
+  }
+  .stat { }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--red);
+    letter-spacing: 0.05em;
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 0.2rem;
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    padding: 6rem 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-full {
+    padding: 6rem 3rem;
+  }
+
+  .section-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 3rem;
+    gap: 1rem;
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 0.5rem;
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  .section-label::before { content: ''; width: 20px; height: 1px; background: var(--red); }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+
+  .view-all {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 0.5rem;
+    white-space: nowrap;
+    transition: color 0.2s;
+    flex-shrink: 0;
+  }
+  .view-all::after { content: '→'; transition: transform 0.2s; }
+  .view-all:hover { color: var(--red); }
+  .view-all:hover::after { transform: translateX(4px); }
+
+  /* ── CATEGORY TABS ── */
+  .cat-tabs {
+    display: flex; gap: 0.6rem; flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+  .cat-tab {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.4rem 1rem;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 2px;
+    cursor: pointer;
+    color: var(--muted);
+    background: transparent;
+    transition: all 0.2s;
+  }
+  .cat-tab.active, .cat-tab:hover {
+    background: var(--red);
+    border-color: var(--red);
+    color: var(--white);
+  }
+
+  /* ── MUSIC CARDS ── */
+  .music-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .music-card {
+    background: var(--surface);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .music-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 30px var(--red-glow);
+    border-color: rgba(229,0,26,0.3);
+  }
+
+  .music-card-art {
+    aspect-ratio: 1;
+    background: var(--surface2);
+    position: relative;
+    overflow: hidden;
+  }
+  .music-card-art-inner {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3rem;
+    background: linear-gradient(135deg, var(--surface2), var(--dark));
+    position: relative;
+  }
+  .music-card-art-inner::after {
+    content: '▶';
+    position: absolute;
+    font-size: 2rem;
+    color: var(--white);
+    opacity: 0;
+    transition: opacity 0.2s;
+    background: rgba(229,0,26,0.8);
+    width: 54px; height: 54px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    padding-left: 4px;
+  }
+  .music-card:hover .music-card-art-inner::after { opacity: 1; }
+
+  .music-card-genre {
+    position: absolute; top: 10px; left: 10px;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: var(--red);
+    color: var(--white);
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+  }
+
+  .music-card-body { padding: 1rem; }
+  .music-card-title {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+    color: var(--white);
+  }
+  .music-card-artist {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+  .music-card-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  .music-card-duration {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+  .music-card-plays {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+
+  /* ── VIDEO GRID ── */
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  .video-card {
+    background: var(--surface);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .video-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 25px var(--red-glow);
+    border-color: rgba(229,0,26,0.25);
+  }
+  .video-thumb {
+    aspect-ratio: 16/9;
+    background: var(--surface2);
+    position: relative;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem;
+  }
+  .video-thumb::before {
+    content: '▶';
+    position: absolute;
+    width: 54px; height: 54px;
+    background: rgba(229,0,26,0.9);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; color: white;
+    transition: transform 0.2s;
+    z-index: 1;
+    line-height: 54px; text-align: center; padding-left: 4px;
+  }
+  .video-card:hover .video-thumb::before { transform: scale(1.1); }
+  .video-duration-badge {
+    position: absolute; bottom: 8px; right: 8px;
+    background: rgba(0,0,0,0.85);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 2px;
+    z-index: 2;
+  }
+  .video-body { padding: 1rem; }
+  .video-cat-badge {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 0.4rem;
+  }
+  .video-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+  }
+  .video-channel {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  /* ── NEWS GRID ── */
+  .news-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+  }
+  @media (max-width: 768px) { .news-grid { grid-template-columns: 1fr; } }
+  .news-featured {
+    background: var(--surface);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer;
+    transition: box-shadow 0.3s;
+  }
+  .news-featured:hover { box-shadow: 0 0 30px var(--red-glow); }
+  .news-featured-img {
+    aspect-ratio: 16/8;
+    background: linear-gradient(135deg, #1a0305, #2a0510);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4rem; position: relative;
+  }
+  .news-cat-badge {
+    position: absolute; top: 12px; left: 12px;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: var(--red);
+    color: var(--white);
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+  }
+  .news-featured-body { padding: 1.5rem; }
+  .news-featured-title {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    letter-spacing: 0.03em;
+    line-height: 1.1;
+    margin-bottom: 0.8rem;
+  }
+  .news-featured-excerpt {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+  .news-meta {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    display: flex; gap: 1rem; flex-wrap: wrap;
+  }
+  .news-meta span { display: flex; align-items: center; gap: 0.3rem; }
+
+  .news-side { display: flex; flex-direction: column; gap: 1rem; }
+  .news-card {
+    background: var(--surface);
+    border-radius: 4px;
+    padding: 1rem;
+    border: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+    text-decoration: none; color: inherit; display: block;
+  }
+  .news-card:hover { border-color: rgba(229,0,26,0.3); transform: translateX(4px); }
+  .news-card-cat {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 0.4rem;
+  }
+  .news-card-title { font-weight: 700; font-size: 0.88rem; line-height: 1.4; margin-bottom: 0.5rem; }
+  .news-card-date { font-family: var(--font-mono); font-size: 0.62rem; color: var(--muted); }
+
+  /* ── INSTRUMENTAL STORE ── */
+  .instr-section { background: var(--dark); }
+  .instr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+    max-width: 1200px; margin: 0 auto;
+  }
+  .instr-card {
+    background: var(--surface);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    position: relative;
+  }
+  .instr-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 25px rgba(201,168,76,0.2);
+    border-color: rgba(201,168,76,0.3);
+  }
+  .instr-art {
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, #1a1a0a, #2a200a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3rem;
+    position: relative;
+  }
+  .instr-bpm {
+    position: absolute; top: 10px; right: 10px;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    background: rgba(0,0,0,0.7);
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+    color: var(--gold);
+  }
+  .instr-play-btn {
+    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    width: 44px; height: 44px;
+    background: var(--red);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 1rem;
+    opacity: 0; transition: opacity 0.2s;
+    padding-left: 3px;
+  }
+  .instr-card:hover .instr-play-btn { opacity: 1; }
+  .instr-body { padding: 1.2rem; }
+  .instr-genre {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.4rem;
+  }
+  .instr-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.2rem; }
+  .instr-producer { font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); margin-bottom: 1rem; }
+  .instr-bottom {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .instr-price {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+  .buy-btn {
+    background: var(--gold);
+    color: var(--black);
+    padding: 0.5rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .buy-btn:hover { background: #e0bc60; transform: scale(1.03); }
+  .instr-exclusive {
+    position: absolute; top: 10px; left: 10px;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--gold);
+    color: var(--black);
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    font-weight: 700;
+  }
+
+  /* ── FULL PAGE SECTIONS ── */
+  .page-section {
+    min-height: 100vh;
+    padding-top: 72px;
+  }
+
+  .page-hero {
+    background: linear-gradient(to bottom, rgba(229,0,26,0.08) 0%, transparent 100%);
+    padding: 4rem 3rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .page-hero-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 1rem;
+  }
+  .page-hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    letter-spacing: 0.06em;
+    margin-bottom: 1rem;
+  }
+  .page-hero-sub {
+    font-size: 0.95rem;
+    color: var(--muted);
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  /* ── SIGN POST / BREADCRUMB ── */
+  .signpost {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 1rem 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .signpost a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .signpost a:hover { color: var(--red); }
+  .signpost span { color: var(--red); }
+  .signpost-sep { opacity: 0.3; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(229,0,26,0.3), transparent);
+    margin: 0 3rem;
+  }
+
+  /* ── MARQUEE ── */
+  .marquee-wrap {
+    overflow: hidden;
+    background: var(--red);
+    padding: 0.7rem 0;
+    white-space: nowrap;
+  }
+  .marquee-track {
+    display: inline-block;
+    animation: marquee 20s linear infinite;
+  }
+  .marquee-track span {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    letter-spacing: 0.25em;
+    margin-right: 3rem;
+    color: var(--white);
+    opacity: 0.9;
+  }
+  .marquee-track span.dot { color: rgba(255,255,255,0.5); font-size: 0.5rem; vertical-align: middle; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--dark);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 4rem 3rem 2rem;
+  }
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+  }
+  .footer-brand-logo {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    letter-spacing: 0.12em;
+    margin-bottom: 1rem;
+  }
+  .footer-brand-logo span { color: var(--red); }
+  .footer-tagline { font-size: 0.85rem; color: var(--muted); line-height: 1.7; max-width: 280px; }
+  .footer-col h4 {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 1.2rem;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li { margin-bottom: 0.7rem; }
+  .footer-col ul a {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-col ul a:hover { color: var(--white); }
+  .footer-bottom {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    gap: 1rem; flex-wrap: wrap;
+  }
+  .footer-copy {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .footer-socials { display: flex; gap: 1rem; }
+  .footer-social {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+    text-decoration: none;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+  .footer-social:hover { border-color: var(--red); color: var(--red); }
+
+  /* ── NEWSLETTER ── */
+  .newsletter-band {
+    background: linear-gradient(135deg, #1a0305 0%, var(--surface) 100%);
+    border-top: 1px solid rgba(229,0,26,0.15);
+    border-bottom: 1px solid rgba(229,0,26,0.15);
+  }
+  .newsletter-inner {
+    max-width: 600px; margin: 0 auto;
+    padding: 4rem 3rem;
+    text-align: center;
+  }
+  .newsletter-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 0.8rem;
+  }
+  .newsletter-title {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+  }
+  .newsletter-sub {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin-bottom: 1.8rem;
+    line-height: 1.7;
+  }
+  .newsletter-form {
+    display: flex; gap: 0; max-width: 440px; margin: 0 auto;
+  }
+  .newsletter-form input {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-right: none;
+    border-radius: 2px 0 0 2px;
+    padding: 0.85rem 1.2rem;
+    color: var(--white);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .newsletter-form input::placeholder { color: var(--muted); }
+  .newsletter-form input:focus { border-color: var(--red); }
+  .newsletter-form button {
+    background: var(--red);
+    color: var(--white);
+    border: none;
+    padding: 0.85rem 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 0 2px 2px 0;
+    transition: background 0.2s;
+  }
+  .newsletter-form button:hover { background: var(--red-dark); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1024px) {
+    .hero-inner { grid-template-columns: 1fr; text-align: center; }
+    .hero-actions { justify-content: center; }
+    .hero-stats { justify-content: center; }
+    .hero-sub { margin: 0 auto 2.5rem; }
+    .hero-visual { display: none; }
+    .footer-inner { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 1.5rem; }
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    .section, .section-full { padding: 4rem 1.5rem; }
+    .signpost { padding: 1rem 1.5rem; }
+    .footer-inner { grid-template-columns: 1fr; gap: 2rem; padding: 0; }
+    footer { padding: 3rem 1.5rem 2rem; }
+    .footer-brand-logo { font-size: 2rem; }
+    .section-header { flex-direction: column; align-items: flex-start; }
+    .news-grid { grid-template-columns: 1fr; }
+    .hero-inner { padding: 0 1.5rem; }
+    .page-hero { padding: 3rem 1.5rem 2rem; }
+    .newsletter-inner { padding: 3rem 1.5rem; }
+    .newsletter-form { flex-direction: column; }
+    .newsletter-form input { border-right: 1px solid rgba(255,255,255,0.1); border-bottom: none; border-radius: 2px 2px 0 0; }
+    .newsletter-form button { border-radius: 0 0 2px 2px; }
+  }
+
+  /* ── PAGE VISIBILITY ── */
+  .page { display: none; }
+  .page.active { display: block; }
+  #home-page { display: block; }
+
+  /* ── ANIMATION ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up { animation: fadeUp 0.7s ease both; }
+  .fade-up-d1 { animation-delay: 0.1s; }
+  .fade-up-d2 { animation-delay: 0.2s; }
+  .fade-up-d3 { animation-delay: 0.3s; }
+  .fade-up-d4 { animation-delay: 0.4s; }
+
+  /* ── GLOW DIVIDER ── */
+  .glow-bar {
+    height: 1px;
+    background: linear-gradient(to right, transparent 0%, var(--red) 30%, var(--red) 70%, transparent 100%);
+    opacity: 0.4;
+    margin: 0;
+  }
+
+  /* Post detail */
+  .post-detail-hero {
+    background: linear-gradient(135deg, #1a0305, #111);
+    padding: 4rem 3rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .post-detail-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem,5vw,3.5rem);
+    letter-spacing: 0.04em;
+    line-height: 1.05;
+    margin-bottom: 1rem;
+  }
+  .post-detail-meta {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    display: flex; gap: 1.5rem; flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+  .post-detail-body {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 3rem 4rem;
+  }
+  .post-detail-body p {
+    font-size: 1rem;
+    line-height: 1.85;
+    color: rgba(245,245,240,0.8);
+    margin-bottom: 1.5rem;
+  }
+  .post-detail-body h3 {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    letter-spacing: 0.04em;
+    margin: 2rem 0 1rem;
+    color: var(--white);
+  }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo" onclick="showPage('home')">BEAT<span>VAULT</span></a>
+  <ul class="nav-links">
+    <li><a href="#" onclick="showPage('home')">Home</a></li>
+    <li><a href="#" onclick="showPage('music')">Music</a></li>
+    <li><a href="#" onclick="showPage('video')">Videos</a></li>
+    <li><a href="#" onclick="showPage('news')">News</a></li>
+    <li><a href="#" class="nav-cta" onclick="showPage('instrumentals')">Instrumentals</a></li>
+  </ul>
+  <div class="hamburger" id="hamburger" onclick="toggleMobile()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#" onclick="showPage('home'); toggleMobile()">Home</a>
+  <a href="#" onclick="showPage('music'); toggleMobile()">Music</a>
+  <a href="#" onclick="showPage('video'); toggleMobile()">Videos</a>
+  <a href="#" onclick="showPage('news'); toggleMobile()">News</a>
+  <a href="#" class="mob-cta" onclick="showPage('instrumentals'); toggleMobile()">Instrumentals 🎹</a>
+</div>
+
+<!-- ════════════════════════════════════════ HOME PAGE -->
+<div class="page active" id="home-page">
+
+  <!-- HERO -->
+  <section id="home">
+    <div class="hero-bg"></div>
+    <div class="hero-noise"></div>
+    <div class="hero-lines">
+      <svg viewBox="0 0 1440 800" preserveAspectRatio="xMidYMid slice">
+        <path d="M0,400 Q360,200 720,400 T1440,400" stroke="#e5001a" stroke-width="1" fill="none" opacity="0.5"/>
+        <path d="M0,450 Q360,250 720,350 T1440,450" stroke="#e5001a" stroke-width="0.5" fill="none" opacity="0.3"/>
+        <path d="M0,350 Q360,500 720,300 T1440,350" stroke="#e5001a" stroke-width="0.5" fill="none" opacity="0.2"/>
+      </svg>
+    </div>
+    <div class="hero-inner">
+      <div>
+        <div class="hero-tag fade-up">Where Sound Lives</div>
+        <h1 class="hero-title fade-up fade-up-d1">
+          FROM A SPARK<br>
+          <span class="stroke">OF</span> <span class="red">INSPIRATION</span><br>
+          TO A FULL<br>
+          <span class="stroke">TRACK</span>
+        </h1>
+        <p class="hero-sub fade-up fade-up-d2">
+          BeatVault is the pulse of the music world — discover new tracks, watch exclusive visuals, stay current with industry news, and license premium instrumentals.
+        </p>
+        <div class="hero-actions fade-up fade-up-d3">
+          <a href="#" class="btn-primary" onclick="showPage('music')">▶ Explore Music</a>
+          <a href="#" class="btn-ghost" onclick="showPage('instrumentals')">🎹 Shop Beats</a>
+        </div>
+        <div class="hero-stats fade-up fade-up-d4">
+          <div class="stat">
+            <div class="stat-num">12K+</div>
+            <div class="stat-label">Tracks</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">4.8K</div>
+            <div class="stat-label">Videos</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">500+</div>
+            <div class="stat-label">Beats</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">80+</div>
+            <div class="stat-label">Countries</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual fade-up fade-up-d2">
+        <div class="vinyl-wrap">
+          <div class="vinyl"></div>
+          <div class="vinyl-center-dot"></div>
+          <div class="eq-bars">
+            <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+            <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+            <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span>AFROBEATS</span><span class="dot">◆</span>
+      <span>HIGHLIFE</span><span class="dot">◆</span>
+      <span>HIP-HOP</span><span class="dot">◆</span>
+      <span>R&B</span><span class="dot">◆</span>
+      <span>AMAPIANO</span><span class="dot">◆</span>
+      <span>GOSPEL</span><span class="dot">◆</span>
+      <span>DANCEHALL</span><span class="dot">◆</span>
+      <span>TRAP</span><span class="dot">◆</span>
+      <span>FUJI</span><span class="dot">◆</span>
+      <span>JUJU</span><span class="dot">◆</span>
+      <span>AFROBEATS</span><span class="dot">◆</span>
+      <span>HIGHLIFE</span><span class="dot">◆</span>
+      <span>HIP-HOP</span><span class="dot">◆</span>
+      <span>R&B</span><span class="dot">◆</span>
+      <span>AMAPIANO</span><span class="dot">◆</span>
+      <span>GOSPEL</span><span class="dot">◆</span>
+      <span>DANCEHALL</span><span class="dot">◆</span>
+      <span>TRAP</span><span class="dot">◆</span>
+      <span>FUJI</span><span class="dot">◆</span>
+      <span>JUJU</span><span class="dot">◆</span>
+    </div>
+  </div>
+
+  <!-- HOME: MUSIC SECTION -->
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-label">Latest Drops</div>
+        <h2 class="section-title">FRESH MUSIC</h2>
+      </div>
+      <a href="#" class="view-all" onclick="showPage('music')">All Music</a>
+    </div>
+    <div class="cat-tabs">
+      <button class="cat-tab active" onclick="filterCards(this,'music-home')">All</button>
+      <button class="cat-tab" onclick="filterCards(this,'music-home','Afrobeats')">Afrobeats</button>
+      <button class="cat-tab" onclick="filterCards(this,'music-home','Amapiano')">Amapiano</button>
+      <button class="cat-tab" onclick="filterCards(this,'music-home','Hip-Hop')">Hip-Hop</button>
+      <button class="cat-tab" onclick="filterCards(this,'music-home','R&B')">R&B</button>
+      <button class="cat-tab" onclick="filterCards(this,'music-home','Gospel')">Gospel</button>
+    </div>
+    <div class="music-grid" id="music-home">
+      <!-- Cards generated by JS -->
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- HOME: VIDEO SECTION -->
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-label">Now Playing</div>
+        <h2 class="section-title">LATEST VIDEOS</h2>
+      </div>
+      <a href="#" class="view-all" onclick="showPage('video')">All Videos</a>
+    </div>
+    <div class="cat-tabs">
+      <button class="cat-tab active" onclick="filterCards(this,'video-home')">All</button>
+      <button class="cat-tab" onclick="filterCards(this,'video-home','Official Video')">Official Video</button>
+      <button class="cat-tab" onclick="filterCards(this,'video-home','Live Session')">Live Session</button>
+      <button class="cat-tab" onclick="filterCards(this,'video-home','Interview')">Interview</button>
+    </div>
+    <div class="video-grid" id="video-home"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- HOME: NEWS SECTION -->
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-label">The Feed</div>
+        <h2 class="section-title">MUSIC NEWS</h2>
+      </div>
+      <a href="#" class="view-all" onclick="showPage('news')">All News</a>
+    </div>
+    <div class="news-grid" id="news-home"></div>
+  </div>
+
+  <div class="glow-bar"></div>
+
+  <!-- HOME: INSTRUMENTALS SECTION -->
+  <div class="section-full instr-section">
+    <div class="section" style="padding-top:0; padding-bottom:0;">
+      <div class="section-header">
+        <div>
+          <div class="section-label">Premium Beats</div>
+          <h2 class="section-title">INSTRUMENTALS</h2>
+        </div>
+        <a href="#" class="view-all" onclick="showPage('instrumentals')">Full Store</a>
+      </div>
+      <div class="cat-tabs">
+        <button class="cat-tab active" onclick="filterCards(this,'instr-home')">All</button>
+        <button class="cat-tab" onclick="filterCards(this,'instr-home','Afrobeats')">Afrobeats</button>
+        <button class="cat-tab" onclick="filterCards(this,'instr-home','Trap')">Trap</button>
+        <button class="cat-tab" onclick="filterCards(this,'instr-home','R&B')">R&B</button>
+        <button class="cat-tab" onclick="filterCards(this,'instr-home','Amapiano')">Amapiano</button>
+      </div>
+      <div class="instr-grid" id="instr-home"></div>
+    </div>
+  </div>
+
+  <!-- NEWSLETTER -->
+  <div class="newsletter-band">
+    <div class="newsletter-inner">
+      <div class="newsletter-label">Stay in the loop</div>
+      <h3 class="newsletter-title">DROP IN YOUR EMAIL</h3>
+      <p class="newsletter-sub">Get exclusive drops, behind-the-scenes content, and first access to new instrumentals every Friday.</p>
+      <div class="newsletter-form">
+        <input type="email" placeholder="your@email.com">
+        <button onclick="alert('You\'re in! Welcome to BeatVault.')">Subscribe</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /home-page -->
+
+
+<!-- ════════════════════════════════════════ MUSIC PAGE -->
+<div class="page" id="music-page">
+  <div class="page-section">
+    <div class="signpost">
+      <a href="#" onclick="showPage('home')">Home</a>
+      <span class="signpost-sep">/</span>
+      <span>Music</span>
+    </div>
+    <div class="page-hero">
+      <div class="page-hero-label">Discover & Stream</div>
+      <h1 class="page-hero-title">MUSIC VAULT</h1>
+      <p class="page-hero-sub">Curated tracks across every genre — from the hottest Afrobeats drops to underground gems.</p>
+    </div>
+    <div class="section" style="padding-top:2rem;">
+      <div class="cat-tabs">
+        <button class="cat-tab active" onclick="filterCards(this,'music-full')">All</button>
+        <button class="cat-tab" onclick="filterCards(this,'music-full','Afrobeats')">Afrobeats</button>
+        <button class="cat-tab" onclick="filterCards(this,'music-full','Amapiano')">Amapiano</button>
+        <button class="cat-tab" onclick="filterCards(this,'music-full','Hip-Hop')">Hip-Hop</button>
+        <button class="cat-tab" onclick="filterCards(this,'music-full','R&B')">R&B</button>
+        <button class="cat-tab" onclick="filterCards(this,'music-full','Gospel')">Gospel</button>
+        <button class="cat-tab" onclick="filterCards(this,'music-full','Highlife')">Highlife</button>
+        <button class="cat-tab" onclick="filterCards(this,'music-full','Dancehall')">Dancehall</button>
+      </div>
+      <div class="music-grid" id="music-full"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ MUSIC POST PAGE -->
+<div class="page" id="music-post-page">
+  <div class="page-section">
+    <div class="signpost">
+      <a href="#" onclick="showPage('home')">Home</a>
+      <span class="signpost-sep">/</span>
+      <a href="#" onclick="showPage('music')">Music</a>
+      <span class="signpost-sep">/</span>
+      <span id="music-post-breadcrumb">Track Title</span>
+    </div>
+    <div class="post-detail-hero">
+      <div style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.14em;color:var(--red);margin-bottom:1rem;" id="music-post-genre"></div>
+      <h1 class="post-detail-title" id="music-post-title"></h1>
+      <div class="post-detail-meta">
+        <span id="music-post-artist"></span>
+        <span id="music-post-duration"></span>
+        <span id="music-post-plays"></span>
+      </div>
+      <a href="#" class="btn-primary" style="display:inline-flex;">▶ Play Track</a>
+    </div>
+    <div class="post-detail-body">
+      <p id="music-post-body"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ VIDEO PAGE -->
+<div class="page" id="video-page">
+  <div class="page-section">
+    <div class="signpost">
+      <a href="#" onclick="showPage('home')">Home</a>
+      <span class="signpost-sep">/</span>
+      <span>Videos</span>
+    </div>
+    <div class="page-hero">
+      <div class="page-hero-label">Watch & Vibe</div>
+      <h1 class="page-hero-title">VIDEO VAULT</h1>
+      <p class="page-hero-sub">Official videos, live sessions, interviews, and exclusive behind-the-scenes footage.</p>
+    </div>
+    <div class="section" style="padding-top:2rem;">
+      <div class="cat-tabs">
+        <button class="cat-tab active" onclick="filterCards(this,'video-full')">All</button>
+        <button class="cat-tab" onclick="filterCards(this,'video-full','Official Video')">Official Video</button>
+        <button class="cat-tab" onclick="filterCards(this,'video-full','Live Session')">Live Session</button>
+        <button class="cat-tab" onclick="filterCards(this,'video-full','Interview')">Interview</button>
+        <button class="cat-tab" onclick="filterCards(this,'video-full','Behind The Scenes')">BTS</button>
+        <button class="cat-tab" onclick="filterCards(this,'video-full','Concert')">Concert</button>
+      </div>
+      <div class="video-grid" id="video-full"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ VIDEO POST PAGE -->
+<div class="page" id="video-post-page">
+  <div class="page-section">
+    <div class="signpost">
+      <a href="#" onclick="showPage('home')">Home</a>
+      <span class="signpost-sep">/</span>
+      <a href="#" onclick="showPage('video')">Videos</a>
+      <span class="signpost-sep">/</span>
+      <span id="video-post-breadcrumb">Video Title</span>
+    </div>
+    <div class="post-detail-hero">
+      <div style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.14em;color:var(--red);margin-bottom:1rem;" id="video-post-cat"></div>
+      <h1 class="post-detail-title" id="video-post-title"></h1>
+      <div class="post-detail-meta">
+        <span id="video-post-channel"></span>
+        <span id="video-post-dur"></span>
+      </div>
+      <div style="background:var(--surface);border-radius:4px;aspect-ratio:16/9;max-width:640px;display:flex;align-items:center;justify-content:center;font-size:4rem;margin-top:1.5rem;border:1px solid rgba(229,0,26,0.15);">🎬</div>
+    </div>
+    <div class="post-detail-body">
+      <p id="video-post-body"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ NEWS PAGE -->
+<div class="page" id="news-page">
+  <div class="page-section">
+    <div class="signpost">
+      <a href="#" onclick="showPage('home')">Home</a>
+      <span class="signpost-sep">/</span>
+      <span>News</span>
+    </div>
+    <div class="page-hero">
+      <div class="page-hero-label">The Latest</div>
+      <h1 class="page-hero-title">MUSIC NEWS</h1>
+      <p class="page-hero-sub">Industry news, artist updates, album reviews, tour announcements and more.</p>
+    </div>
+    <div class="section" style="padding-top:2rem;">
+      <div class="cat-tabs">
+        <button class="cat-tab active" onclick="filterCards(this,'news-full')">All</button>
+        <button class="cat-tab" onclick="filterCards(this,'news-full','Industry')">Industry</button>
+        <button class="cat-tab" onclick="filterCards(this,'news-full','Reviews')">Reviews</button>
+        <button class="cat-tab" onclick="filterCards(this,'news-full','Tours')">Tours</button>
+        <button class="cat-tab" onclick="filterCards(this,'news-full','Awards')">Awards</button>
+        <button class="cat-tab" onclick="filterCards(this,'news-full','Releases')">Releases</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;" id="news-full"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ NEWS POST PAGE -->
+<div class="page" id="news-post-page">
+  <div class="page-section">
+    <div class="signpost">
+      <a href="#" onclick="showPage('home')">Home</a>
+      <span class="signpost-sep">/</span>
+      <a href="#" onclick="showPage('news')">News</a>
+      <span class="signpost-sep">/</span>
+      <span id="news-post-breadcrumb">News Title</span>
+    </div>
+    <div class="post-detail-hero">
+      <div style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.14em;color:var(--red);margin-bottom:1rem;" id="news-post-cat"></div>
+      <h1 class="post-detail-title" id="news-post-title"></h1>
+      <div class="post-detail-meta">
+        <span id="news-post-author"></span>
+        <span id="news-post-date"></span>
+      </div>
+    </div>
+    <div class="post-detail-body">
+      <p id="news-post-body"></p>
+      <h3>What This Means for the Industry</h3>
+      <p>Music fans and industry watchers have been paying close attention to this development, as it signals a broader shift in how artists are approaching their craft and business in the current landscape. With streaming royalties continuing to evolve and live performance making a massive comeback, the timing couldn't be more significant.</p>
+      <p>BeatVault will continue to track this story as more details emerge. Stay tuned for exclusive interviews and behind-the-scenes coverage in the coming weeks.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ INSTRUMENTALS PAGE -->
+<div class="page" id="instrumentals-page">
+  <div class="page-section">
+    <div class="signpost">
+      <a href="#" onclick="showPage('home')">Home</a>
+      <span class="signpost-sep">/</span>
+      <span>Instrumentals</span>
+    </div>
+    <div class="page-hero">
+      <div class="page-hero-label">License & Create</div>
+      <h1 class="page-hero-title">BEAT STORE</h1>
+      <p class="page-hero-sub">Premium instrumentals crafted by world-class producers. License a beat and make your next hit today.</p>
+    </div>
+    <div class="section-full instr-section" style="padding:2rem 0 4rem;">
+      <div class="section" style="padding-top:0;padding-bottom:0;">
+        <div class="cat-tabs">
+          <button class="cat-tab active" onclick="filterCards(this,'instr-full')">All</button>
+          <button class="cat-tab" onclick="filterCards(this,'instr-full','Afrobeats')">Afrobeats</button>
+          <button class="cat-tab" onclick="filterCards(this,'instr-full','Trap')">Trap</button>
+          <button class="cat-tab" onclick="filterCards(this,'instr-full','R&B')">R&B</button>
+          <button class="cat-tab" onclick="filterCards(this,'instr-full','Amapiano')">Amapiano</button>
+          <button class="cat-tab" onclick="filterCards(this,'instr-full','Drill')">Drill</button>
+          <button class="cat-tab" onclick="filterCards(this,'instr-full','Gospel')">Gospel</button>
+        </div>
+        <div class="instr-grid" id="instr-full"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand-logo">BEAT<span>VAULT</span></div>
+      <p class="footer-tagline">The home of authentic sound — where artists, fans, and creators come together to discover, stream, and license the music of tomorrow.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navigate</h4>
+      <ul>
+        <li><a href="#" onclick="showPage('home')">Home</a></li>
+        <li><a href="#" onclick="showPage('music')">Music</a></li>
+        <li><a href="#" onclick="showPage('video')">Videos</a></li>
+        <li><a href="#" onclick="showPage('news')">News</a></li>
+        <li><a href="#" onclick="showPage('instrumentals')">Instrumentals</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Genres</h4>
+      <ul>
+        <li><a href="#">Afrobeats</a></li>
+        <li><a href="#">Amapiano</a></li>
+        <li><a href="#">Hip-Hop</a></li>
+        <li><a href="#">Highlife</a></li>
+        <li><a href="#">Gospel</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Submit Music</a></li>
+        <li><a href="#">Advertise</a></li>
+        <li><a href="#">Privacy</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2026 BEATVAULT. All rights reserved.</span>
+    <div class="footer-socials">
+      <a href="#" class="footer-social">𝕏</a>
+      <a href="#" class="footer-social">ig</a>
+      <a href="#" class="footer-social">yt</a>
+      <a href="#" class="footer-social">tk</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── CURSOR ──
+const cur = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx=0, my=0, rx=0, ry=0;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; cur.style.left=mx+'px'; cur.style.top=my+'px'; });
+setInterval(()=>{ rx+=(mx-rx)*0.12; ry+=(my-ry)*0.12; ring.style.left=rx+'px'; ring.style.top=ry+'px'; },16);
+
+// ── MOBILE NAV ──
+let mobileOpen = false;
+function toggleMobile() {
+  mobileOpen = !mobileOpen;
+  document.getElementById('mobileMenu').classList.toggle('open', mobileOpen);
+}
+
+// ── PAGE ROUTING ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(name+'-page').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── DATA ──
+const musicData = [
+  {title:'Tunde\'s World',artist:'Tunde Ednut',genre:'Afrobeats',duration:'3:45',plays:'1.2M plays',emoji:'🎵',color:'#1a0a05'},
+  {title:'Midnight Cruise',artist:'Wande Coal',genre:'R&B',duration:'4:12',plays:'890K plays',emoji:'🌙',color:'#050a1a'},
+  {title:'Lagos to London',artist:'Burna Boy Jr.',genre:'Afrobeats',duration:'3:58',plays:'2.1M plays',emoji:'✈️',color:'#1a0a05'},
+  {title:'Inawo (Remix)',artist:'Seyi Vibez',genre:'Highlife',duration:'3:22',plays:'670K plays',emoji:'🎺',color:'#1a0f05'},
+  {title:'New Wave',artist:'Asake II',genre:'Amapiano',duration:'4:05',plays:'1.5M plays',emoji:'🌊',color:'#050f1a'},
+  {title:'God\'s Timing',artist:'Minister GUC',genre:'Gospel',duration:'5:10',plays:'450K plays',emoji:'✝️',color:'#1a150a'},
+  {title:'No Cap Freestyle',artist:'Zlatan the Legend',genre:'Hip-Hop',duration:'2:55',plays:'780K plays',emoji:'🎤',color:'#0a051a'},
+  {title:'Sere',artist:'Kizz Daniel Jr.',genre:'Afrobeats',duration:'3:30',plays:'1.8M plays',emoji:'💫',color:'#1a0a05'},
+];
+
+const videoData = [
+  {title:'Tunde\'s World (Official Video)',channel:'Tunde Ednut VEVO',cat:'Official Video',duration:'4:00',emoji:'🎬',color:'#1a0a05'},
+  {title:'Lagos Sessions Vol.3',channel:'BeatVault Live',cat:'Live Session',duration:'42:00',emoji:'🎸',color:'#050a1a'},
+  {title:'Burna Jr. on Fame & Faith',channel:'BeatVault Interviews',cat:'Interview',duration:'18:30',emoji:'🎙️',color:'#0a1a05'},
+  {title:'Sere (Official Video)',channel:'Kizz Daniel VEVO',cat:'Official Video',duration:'3:35',emoji:'🎬',color:'#1a050a'},
+  {title:'Afrobeats Tour Diary',channel:'Asake II Official',cat:'Behind The Scenes',duration:'12:00',emoji:'📹',color:'#1a1005'},
+  {title:'Festival Nights Live',channel:'BeatVault Live',cat:'Concert',duration:'1:02:00',emoji:'🎪',color:'#050a1a'},
+];
+
+const newsData = [
+  {title:'Burna Jr. Announces World Tour Dates for 2026',cat:'Tours',author:'Adaeze Obi',date:'May 12, 2026',emoji:'🌍',excerpt:'The Grammy-nominated artist has revealed an ambitious 30-city world tour kicking off in Lagos this summer...'},
+  {title:'Amapiano Takes Over the BillBoard Charts Again',cat:'Industry',author:'Kemi Adewale',date:'May 10, 2026',emoji:'📊',excerpt:'South African genre continues its global domination with three simultaneous entries in the Hot 100...'},
+  {title:'BeatVault Exclusive: Seyi Vibez Album Review',cat:'Reviews',author:'Tayo Bankole',date:'May 9, 2026',emoji:'⭐',excerpt:'We sat down with the album front-to-back and it delivers on every level — a defining moment for highlife...'},
+  {title:'AFRIMMA 2026 Nominations Announced',cat:'Awards',author:'BeatVault Staff',date:'May 8, 2026',emoji:'🏆',excerpt:'The annual ceremony recognizing the best in African music has dropped its full list of nominees...'},
+  {title:'Wande Coal Drops Surprise Single at Midnight',cat:'Releases',author:'Ngozi Chukwu',date:'May 7, 2026',emoji:'🌙',excerpt:'The veteran R&B crooner caught everyone off guard with a lush midnight release...'},
+];
+
+const instrData = [
+  {title:'Lagos Nights',producer:'ProducerZedd',genre:'Afrobeats',bpm:'102 BPM',price:'$49',emoji:'🌃',exclusive:true},
+  {title:'3AM Vibes',producer:'BeatsByKhaled',genre:'R&B',bpm:'88 BPM',price:'$35',emoji:'🌙',exclusive:false},
+  {title:'Trap God',producer:'TrapKingNg',genre:'Trap',bpm:'140 BPM',price:'$45',emoji:'👑',exclusive:false},
+  {title:'Piano Moves',producer:'AmapianoAce',genre:'Amapiano',bpm:'112 BPM',price:'$55',emoji:'🎹',exclusive:true},
+  {title:'Holy Ground',producer:'GospelBeats',genre:'Gospel',bpm:'96 BPM',price:'$30',emoji:'✨',exclusive:false},
+  {title:'London Drill',producer:'DrillMasterUK',genre:'Drill',bpm:'138 BPM',price:'$42',emoji:'⚡',exclusive:false},
+  {title:'Sunset Cruise',producer:'AfroWave',genre:'Afrobeats',bpm:'98 BPM',price:'$38',emoji:'🌅',exclusive:false},
+  {title:'Emotional',producer:'SoftBeatsNG',genre:'R&B',bpm:'82 BPM',price:'$28',emoji:'💔',exclusive:false},
+];
+
+// ── RENDER ──
+function makeMusicCard(item, idx) {
+  return `<a class="music-card" href="#" data-genre="${item.genre}" onclick="openMusicPost(${idx});return false;">
+    <div class="music-card-art">
+      <div class="music-card-art-inner" style="background:linear-gradient(135deg,${item.color},#111);">
+        <span style="font-size:2.5rem">${item.emoji}</span>
+      </div>
+      <span class="music-card-genre">${item.genre}</span>
+    </div>
+    <div class="music-card-body">
+      <div class="music-card-title">${item.title}</div>
+      <div class="music-card-artist">${item.artist}</div>
+      <div class="music-card-meta">
+        <span class="music-card-duration">${item.duration}</span>
+        <span class="music-card-plays">${item.plays}</span>
+      </div>
+    </div>
+  </a>`;
+}
+
+function makeVideoCard(item, idx) {
+  return `<a class="video-card" href="#" data-genre="${item.cat}" onclick="openVideoPost(${idx});return false;">
+    <div class="video-thumb" style="background:linear-gradient(135deg,${item.color||'#1a0305'},#111);">
+      <span style="font-size:2rem;opacity:0.3;">${item.emoji}</span>
+      <span class="video-duration-badge">${item.duration}</span>
+    </div>
+    <div class="video-body">
+      <div class="video-cat-badge">${item.cat}</div>
+      <div class="video-title">${item.title}</div>
+      <div class="video-channel">${item.channel}</div>
+    </div>
+  </a>`;
+}
+
+function makeNewsCard(item, idx, featured=false) {
+  if (featured) {
+    return `<div class="news-featured" onclick="openNewsPost(${idx})">
+      <div class="news-featured-img" style="font-size:3.5rem">${item.emoji}
+        <span class="news-cat-badge">${item.cat}</span>
+      </div>
+      <div class="news-featured-body">
+        <h3 class="news-featured-title">${item.title}</h3>
+        <p class="news-featured-excerpt">${item.excerpt}</p>
+        <div class="news-meta"><span>✍️ ${item.author}</span><span>📅 ${item.date}</span></div>
+      </div>
+    </div>`;
+  }
+  return `<a class="news-card" href="#" data-genre="${item.cat}" onclick="openNewsPost(${idx});return false;">
+    <div class="news-card-cat">${item.cat}</div>
+    <div class="news-card-title">${item.title}</div>
+    <div class="news-card-date">${item.date}</div>
+  </a>`;
+}
+
+function makeNewsFullCard(item, idx) {
+  return `<a class="news-card" href="#" data-genre="${item.cat}" onclick="openNewsPost(${idx});return false;" style="padding:1.5rem;">
+    <div style="font-size:2rem;margin-bottom:0.8rem">${item.emoji}</div>
+    <div class="news-card-cat">${item.cat}</div>
+    <div class="news-card-title" style="font-size:1rem;margin-bottom:0.5rem;">${item.title}</div>
+    <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;margin-bottom:0.8rem;">${item.excerpt.substring(0,100)}...</div>
+    <div class="news-card-date">${item.date} · ${item.author}</div>
+  </a>`;
+}
+
+function makeInstrCard(item) {
+  return `<div class="instr-card" data-genre="${item.genre}">
+    ${item.exclusive ? '<span class="instr-exclusive">Exclusive</span>' : ''}
+    <div class="instr-art" style="background:linear-gradient(135deg,#1a1a0a,#2a200a);">
+      <span style="font-size:3rem">${item.emoji}</span>
+      <span class="instr-bpm">${item.bpm}</span>
+      <div class="instr-play-btn">▶</div>
+    </div>
+    <div class="instr-body">
+      <div class="instr-genre">${item.genre}</div>
+      <div class="instr-title">${item.title}</div>
+      <div class="instr-producer">prod. ${item.producer}</div>
+      <div class="instr-bottom">
+        <span class="instr-price">${item.price}</span>
+        <button class="buy-btn" onclick="alert('Redirecting to checkout for \\'${item.title}\\' — ${item.price}')">Buy Now</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── INIT ──
+function renderAll() {
+  // Home music
+  document.getElementById('music-home').innerHTML = musicData.slice(0,4).map((m,i)=>makeMusicCard(m,i)).join('');
+  // Full music
+  document.getElementById('music-full').innerHTML = musicData.map((m,i)=>makeMusicCard(m,i)).join('');
+  // Home video
+  document.getElementById('video-home').innerHTML = videoData.slice(0,3).map((v,i)=>makeVideoCard(v,i)).join('');
+  // Full video
+  document.getElementById('video-full').innerHTML = videoData.map((v,i)=>makeVideoCard(v,i)).join('');
+  // Home news
+  document.getElementById('news-home').innerHTML =
+    `<div>${makeNewsCard(newsData[0],0,true)}</div>
+     <div class="news-side">${newsData.slice(1,4).map((n,i)=>makeNewsCard(n,i+1)).join('')}</div>`;
+  // Full news
+  document.getElementById('news-full').innerHTML = newsData.map((n,i)=>makeNewsFullCard(n,i)).join('');
+  // Home instr
+  document.getElementById('instr-home').innerHTML = instrData.slice(0,4).map(it=>makeInstrCard(it)).join('');
+  // Full instr
+  document.getElementById('instr-full').innerHTML = instrData.map(it=>makeInstrCard(it)).join('');
+}
+renderAll();
+
+// ── FILTER ──
+function filterCards(btn, containerId, genre='') {
+  btn.closest('.cat-tabs').querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  const container = document.getElementById(containerId);
+  container.querySelectorAll('[data-genre]').forEach(card => {
+    if (!genre || card.dataset.genre === genre) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// ── POST VIEWS ──
+function openMusicPost(idx) {
+  const m = musicData[idx];
+  document.getElementById('music-post-breadcrumb').textContent = m.title;
+  document.getElementById('music-post-genre').textContent = m.genre;
+  document.getElementById('music-post-title').textContent = m.title;
+  document.getElementById('music-post-artist').textContent = '🎤 ' + m.artist;
+  document.getElementById('music-post-duration').textContent = '⏱ ' + m.duration;
+  document.getElementById('music-post-plays').textContent = '▶ ' + m.plays;
+  document.getElementById('music-post-body').textContent = `"${m.title}" by ${m.artist} is a standout ${m.genre} record that has been making serious waves across streaming platforms, accumulating ${m.plays} in a short time. The production blends contemporary sounds with deep rhythmic undertones, delivering a track that feels both fresh and timeless. ${m.artist} brings their signature style to every bar, showcasing why they remain one of the most exciting voices in the genre. Listeners have praised the song's infectious energy and the way it masterfully balances emotion and groove. This is a must-listen for any fan of authentic African music.`;
+  showPage('music-post');
+}
+
+function openVideoPost(idx) {
+  const v = videoData[idx];
+  document.getElementById('video-post-breadcrumb').textContent = v.title;
+  document.getElementById('video-post-cat').textContent = v.cat;
+  document.getElementById('video-post-title').textContent = v.title;
+  document.getElementById('video-post-channel').textContent = '📺 ' + v.channel;
+  document.getElementById('video-post-dur').textContent = '⏱ ' + v.duration;
+  document.getElementById('video-post-body').textContent = `This ${v.cat.toLowerCase()} from ${v.channel} is a visual masterpiece that perfectly complements the audio experience. Running at ${v.duration}, the production team spared no expense in creating an immersive experience for viewers. The cinematography draws inspiration from both contemporary African aesthetics and global visual storytelling trends, making it a compelling watch from start to finish. Since its release, the video has generated massive engagement across social media, with fans praising its creativity and authentic representation of the culture.`;
+  showPage('video-post');
+}
+
+function openNewsPost(idx) {
+  const n = newsData[idx];
+  document.getElementById('news-post-breadcrumb').textContent = n.title;
+  document.getElementById('news-post-cat').textContent = n.cat;
+  document.getElementById('news-post-title').textContent = n.title;
+  document.getElementById('news-post-author').textContent = '✍️ ' + n.author;
+  document.getElementById('news-post-date').textContent = '📅 ' + n.date;
+  document.getElementById('news-post-body').textContent = n.excerpt + ' The story continues to develop as more sources within the music industry confirm the details. BeatVault reached out to representatives and received confirmation that this is an official announcement. Fans across Africa and the diaspora have been reacting with excitement on social media, with the news trending in multiple countries within hours of breaking. This development marks a significant moment not just for the artist involved but for the wider African music industry, which continues to grow its global footprint at an unprecedented rate.';
+  showPage('news-post');
+}
+</script>
+</body>
+</html>
